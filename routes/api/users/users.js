@@ -12,8 +12,6 @@ const GmailUser = require('../../../config/Keys').GmailUser;
 const GmailPass = require('../../../config/Keys').GmailPass;
 const User = require('../../../model/User');
 const secretOrKey = require('../../../config/Keys').secretOrKey;
-const registerValidation = require('../joi-validation/joi-register');
-const loginValidation = require('../joi-validation/joi-login');
 
 // Register Route // @ Public Route
 router.post('/register', (req, res) => {
@@ -132,6 +130,7 @@ router.post('/register', (req, res) => {
 // @ Public Route
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
   // Joi Validation
   // loginValidation(req.body, res);
   const schema = {

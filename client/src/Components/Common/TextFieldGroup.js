@@ -10,6 +10,7 @@ const TextFieldGroup = ({
   info,
   type,
   onChange,
+  onFocus,
   disabled
 }) => {
   return (
@@ -21,6 +22,7 @@ const TextFieldGroup = ({
         name={name}
         value={value}
         onChange={onChange}
+        onFocus={onFocus}
         disabled={disabled}
       />
       {info && <small className="form-text text-muted">{info}</small>}

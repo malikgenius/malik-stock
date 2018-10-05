@@ -1,32 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import Dropzone from 'react-dropzone';
 import Cropper from 'react-cropper';
 import FormData from 'form-data';
 import 'cropperjs/dist/cropper.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TextFieldGroup from '../Common/TextFieldGroup';
-import TextAreaFieldGroup from '../Common/TextAreaFieldGroup';
-import InputGroup from '../Common/InputGroup';
-import SelectListGroup from '../Common/SelectListGroup';
-import { createProfile, uploadProfileImage } from '../../actions/profileAction';
 
-class CreateProfile extends Component {
+import { uploadProfileImage } from '../../actions/profileAction';
+
+class UploadProfileImage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      bay: '',
-      column: '',
-      row: '',
-      side: '',
-      well: '',
-      depth: '',
-      box: '',
-      sample: '',
-      status: '',
       // Dropzone files
       files: [],
       fileName: '',
@@ -35,8 +23,7 @@ class CreateProfile extends Component {
       image: {},
       errors: '',
       success: '',
-      myfile: '',
-      input: ''
+      myfile: ''
     };
   }
 
@@ -51,7 +38,7 @@ class CreateProfile extends Component {
       this.setState({ success: nextProps.success.success });
     }
   }
-  // Toast Notifications
+
   toastNotify = () => {
     // toast('Default Notification !');
     if (this.state.success) {
@@ -65,6 +52,19 @@ class CreateProfile extends Component {
     });
   };
 
+  // upload Image .. when click on check in dropzone preview
+  uploadImage = async () => {
+    try {
+      await this.props.uploadProfileImage(
+        this.state.image,
+        this.state.fileName
+      );
+      this.cancelCrop();
+      this.setState({ success: 'Success!, Image has been uploaded' });
+    } catch (err) {
+      this.setState({ errors: err });
+    }
+  };
   // when clicked on cancel
   cancelCrop = () => {
     this.setState({
@@ -75,25 +75,14 @@ class CreateProfile extends Component {
 
   onSubmit = e => {
     e.preventDefault();
-    const formData = {
-      bay: this.state.bay,
-      column: this.state.column,
-      row: this.state.row,
-      side: this.state.side,
-      well: this.state.well,
-      depth: this.state.depth,
-      // cropResult: this.state.cropResult,
-      box: this.state.box,
-      sample: this.state.sample,
-      status: this.state.status
-    };
-
-    // this.props.createProfile(formData, this.props.history);
-    this.props.uploadProfileImage(
-      formData,
-      this.state.files[0],
-      this.props.history
-    );
+    // trying to send data through formData to backend Only Image will go
+    // it working with uploadProfileImage and some headers defined in action.
+    let formData = new FormData();
+    formData.append('file', this.state.files[0], this.state.files[0].filename);
+    // formData.append('file', this.state.cropResult);
+    const options = { content: formData };
+    this.props.uploadProfileImage(formData, this.props.history);
+    // normal Way of sending data to redux / axios- i just named it form Data
   };
 
   onFocus = () => {
@@ -104,17 +93,29 @@ class CreateProfile extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  // File Upload thorugh usual Input Tag..
-  onFileChange = e => {
-    this.setState({ files: e.target.files });
-  };
-
   // Dropzone
   onDrop = files => {
     this.setState({
       files,
       fileName: files[0].name
     });
+    // below working fine with direct axios to server.
+    // const formData = new FormData();
+    // formData.append('file', files[0], files[0].filename);
+    // axios
+    //   .post('/api/profile', formData, {
+    //     headers: {
+    //       accept: 'application/json',
+    //       'Accept-Language': 'en-US,en;q=0.8',
+    //       'Content-Type': `application/x-www-form-urlencoded`
+    //     }
+    //   })
+    //   .then(res => {
+    //     console.log(res.data);
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
   };
   // Cropper
   cropImage = () => {
@@ -123,16 +124,25 @@ class CreateProfile extends Component {
     }
     this.refs.cropper.getCroppedCanvas().toBlob(blob => {
       let imageUrl = URL.createObjectURL(blob);
-      console.log(imageUrl);
       this.setState({
         cropResult: imageUrl,
         image: blob
       });
     }, 'image/jpg');
+
+    // this.refs.cropper.getCroppedCanvas().toDataURL(data => {
+    //   let imageUrl = URL.createObjectURL(data);
+    //   this.setState({
+    //     cropResult: imageUrl,
+    //     image: data
+    //   });
+    // }, 'image/jpg');
+    // other option is toDataURL which i have to check but will use blob for now.
+    // console.log(this.refs.cropper.getCroppedCanvas().toDataURL());
   };
 
   render() {
-    const { errors, success, displaySocialInputs } = this.state;
+    const { errors, success } = this.state;
 
     return (
       <div className="create-profile">
@@ -142,96 +152,20 @@ class CreateProfile extends Component {
               <Link to="/dashboard" className="btn btn-light">
                 Go Back
               </Link>
-              <h1 className="display-4 text-center">Add New Product</h1>
+              <h1 className="display-4 text-center">Upload Profile Image</h1>
               <p className="lead text-center">
-                Please fill all the fields with correct data to successfuly
-                submit the form.
+                Please drag & drop your an Image
               </p>
               <small className="d-block pb-3">* = required fields</small>
               <form onSubmit={this.onSubmit}>
-                <TextFieldGroup
-                  placeholder="* Bay"
-                  name="bay"
-                  value={this.state.bay}
-                  onChange={this.onChange}
-                  info="Bay Info"
-                  onFocus={this.onFocus}
-                />
-
-                <TextFieldGroup
-                  placeholder="Column"
-                  name="column"
-                  value={this.state.column}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Could be your own company or one you work for"
-                />
-                <TextFieldGroup
-                  placeholder="Row"
-                  name="row"
-                  value={this.state.row}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Could be your own website or a company one"
-                />
-                <TextFieldGroup
-                  placeholder="Side"
-                  name="side"
-                  value={this.state.side}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="City or city & state suggested (eg. Boston, MA)"
-                />
-                <TextFieldGroup
-                  placeholder="* Well number or name"
-                  name="well"
-                  value={this.state.well}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Please profile Well number or name"
-                />
-                <TextFieldGroup
-                  placeholder="Depth (Feet\Meters)"
-                  name="depth"
-                  value={this.state.depth}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Depth in FEETs or Meters"
-                />
-                <TextFieldGroup
-                  placeholder="Box Number"
-                  name="box"
-                  value={this.state.box}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Box number here"
-                />
-
-                <TextFieldGroup
-                  placeholder="Sample Type"
-                  name="sample"
-                  value={this.state.sample}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Mention the type of Sample"
-                />
-
-                <TextAreaFieldGroup
-                  placeholder="Status"
-                  name="status"
-                  value={this.state.status}
-                  onChange={this.onChange}
-                  onFocus={this.onFocus}
-                  info="Status of Product"
-                />
                 {/* testing simple file upload to compare with Dropzone */}
-                <input
-                  type="file"
-                  // value={this.state.files}
-                  onChange={this.onFileChange}
-                />
+
+                {/* <div>
+                  <input type="file" name="files" onChange={this.onChange} />
+                </div> */}
+
                 <div className="row container">
-                  <div className="mb-3 col-md-4">
+                  <div className="mb-3">
                     <Dropzone
                       onDrop={this.onDrop}
                       // multiple={false}
@@ -243,14 +177,10 @@ class CreateProfile extends Component {
                       </div>
                     </Dropzone>
                   </div>
-                  <div className=" col-md-4">
+                  <div className="m-auto">
                     {this.state.files[0] && (
                       <Cropper
-                        style={{
-                          maxHeight: '200px',
-                          maxWidth: '200px',
-                          marginTop: 0
-                        }}
+                        style={{ maxHeight: '200px', maxWidth: '200px' }}
                         ref="cropper"
                         src={this.state.files[0].preview}
                         //Rectangle image settings
@@ -269,9 +199,9 @@ class CreateProfile extends Component {
                     )}
                   </div>
                   {this.state.files[0] && (
-                    <div className="m-auto col-md-4">
+                    <div className="m-auto row">
                       <img
-                        // className="col col-md-12"
+                        className="col col-md-12"
                         style={{ maxHeight: '200px', maxWidth: '200px' }}
                         src={this.state.cropResult}
                       />
@@ -290,7 +220,6 @@ class CreateProfile extends Component {
                     </div>
                   )}
                 </div>
-
                 <input
                   type="submit"
                   value="Submit"
@@ -330,5 +259,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { createProfile, uploadProfileImage }
-)(withRouter(CreateProfile));
+  { uploadProfileImage }
+)(withRouter(UploadProfileImage));

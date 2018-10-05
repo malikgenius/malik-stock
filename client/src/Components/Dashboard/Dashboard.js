@@ -8,9 +8,6 @@ import {
 } from '../../actions/profileAction';
 import SpinnerLottie from '../Common/spinnerLottie';
 import ProfileButtonsAction from './ProfileButtonsAction';
-// Experience and Education...
-import Experience from './Experience';
-import Education from './Education';
 
 class Dashboard extends Component {
   componentDidMount = () => {
@@ -49,9 +46,7 @@ class Dashboard extends Component {
                 {user.name}
               </Link>{' '}
             </div>
-            <ProfileButtonsAction />
-            <Experience experience={profile.experience} />
-            <Education education={profile.education} />
+
             {/* Todo: Exp and Edu */}
             <div style={{ marginTop: '60px' }}>
               {/* show only on middle and big screens  */}

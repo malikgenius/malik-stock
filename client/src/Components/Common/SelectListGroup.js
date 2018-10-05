@@ -1,7 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const SelectListGroup = ({ name, value, error, info, onChange, options }) => {
+const SelectListGroup = ({
+  name,
+  value,
+  error,
+  info,
+  onChange,
+  options,
+  onFocus
+}) => {
   const selectOptions = options.map(option => (
     <option key={option.label} value={option.value}>
       {option.label}
@@ -14,6 +22,7 @@ const SelectListGroup = ({ name, value, error, info, onChange, options }) => {
         name={name}
         value={value}
         onChange={onChange}
+        onFocus={onFocus}
       >
         {selectOptions}
       </select>
@@ -29,6 +38,7 @@ SelectListGroup.propTypes = {
   info: PropTypes.string,
   error: PropTypes.string,
   onChange: PropTypes.func.isRequired,
+  onFocus: PropTypes.func.isRequired,
   options: PropTypes.array.isRequired
 };
 

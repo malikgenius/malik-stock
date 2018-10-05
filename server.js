@@ -17,14 +17,11 @@ if (process.env.NODE_ENV === 'production') {
 // web-push for push notifications
 
 //Routes
-const push = require('./routes/api/notification/pushnotification');
-const notification = require('./routes/api/notification/notification');
+
 const users = require('./routes/api/users/users');
 const reset_verify = require('./routes/api/users/reset_verify');
-const profile = require('./routes/api/profiles/profile');
-
-const posts = require('./routes/api/posts/posts');
-const comments = require('./routes/api/comments/comments');
+const stock = require('./routes/api/stock/stock');
+const upload = require('./routes/api/stock/uploadRoute');
 
 // MiddleWare
 app.use(bodyParser.json());
@@ -33,7 +30,7 @@ app.use(morgan('combined'));
 app.use(passport.initialize());
 
 //Passport Jwt Strategy, Google & Facebook
-require('./passport/passport');
+// require('./passport/passport');
 
 // Grid init
 
@@ -56,13 +53,11 @@ app.use(function(req, res, next) {
 });
 
 // Routes
-app.use('/api/push', push);
+// app.use('/api/push', push);
 app.use('/api/users', users);
 app.use('/api/reset', reset_verify);
-app.use('/api/profile', profile);
-app.use('/api/notification', notification);
-app.use('/api/posts', posts);
-app.use('/api/comments', comments);
+app.use('/api/stock', stock);
+app.use('/api/upload', upload);
 
 // Server static assets if in production
 

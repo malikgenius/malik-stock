@@ -8,7 +8,7 @@ import {
 } from '../actions/types';
 const initialState = {
   profile: null,
-  profiles: null,
+  profiles: [],
   loading: false
 };
 
@@ -28,6 +28,9 @@ export default (state = initialState, action) => {
     case GET_PROFILES:
       return {
         ...state,
+        // this will add more profiles to store when paginate to next, but when
+        //come back to prev page it will still add :( more... find a solution of duplicate
+        // profiles: state.profiles.concat(action.payload),
         profiles: action.payload,
         loading: false
       };

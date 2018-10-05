@@ -13,26 +13,20 @@ import configureStore from './reducers';
 import PrivateRoute from './Components/Common/PrivateRoute';
 // Components
 import HeaderNavbar from './Components/HeaderNavbar';
-import HomeSection from './Components/HomeSection';
-import GoogleOauth from './Components/SocialLogin/GoogleOauth';
-import FacebookOauth from './Components/SocialLogin/FacebookOauth';
+
 import FooterModal from './Components/FooterModal';
 // Dashboard & Profile Components
 import Dashboard from './Components/Dashboard/Dashboard';
 import CreateProfile from './Components/CreateProfile/CreateProfile';
 import EditProfile from './Components/Dashboard/EditProfile';
-// Experience & Education Routes
-import AddExperience from './Components/CreateProfile/AddExperience';
-import AddEducation from './Components/CreateProfile/AddEducation';
-// Profiles
-import Profiles from './Components/Profiles/Profiles';
-import Profile from './Components/Profile/Profile';
+import UploadProfileImage from './Components/CreateProfile/UploadProfileImage';
+
+// Stocks
+import Stocks from './Components/Profiles/Stocks';
+import Stock from './Components/Profile/Stock';
 import ProfileNotFound from './Components/Profile/ProfileNotFound';
-// Email verification Reset Password ---
-import VerifyAccount from './Components/verifyReset/VerifyAccount';
-import EmailVerified from './Components/verifyReset/EmailVerified';
-import ForgotPassword from './Components/verifyReset/ForgotPassword';
-import ChangePassword from './Components/verifyReset/ChangePassword';
+import QrCode from './Components/Profile/QrCode';
+
 //FontAwesome and BootStrap config
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'font-awesome/css/font-awesome.min.css';
@@ -66,25 +60,20 @@ class App extends Component {
         <Router>
           <div>
             <HeaderNavbar />
-
-            <Route exact path="/" component={HomeSection} />
-            <Route path="/google" component={GoogleOauth} />
-            <Route path="/facebook" component={FacebookOauth} />
-            <Route path="/verifyAccount" component={VerifyAccount} />
-            <Route path="/emailverified" component={EmailVerified} />
-            <Route path="/forgotpassword" component={ForgotPassword} />
-            <Route path="/changepassword" component={ChangePassword} />
-            <Route path="/notfound" component={ProfileNotFound} />
             <Switch>
-              <PrivateRoute path="/dashboard" component={Dashboard} />
-              <PrivateRoute path="/createprofile" component={CreateProfile} />
-              <PrivateRoute path="/edit-profile" component={EditProfile} />
-              <PrivateRoute path="/add-experience" component={AddExperience} />
-              <PrivateRoute path="/add-education" component={AddEducation} />
-              <PrivateRoute path="/profiles" component={Profiles} />
-              <PrivateRoute path="/profile/:handle" component={Profile} />
+              <Route path="/notfound" component={ProfileNotFound} />
+              <Route path="/dashboard" component={Dashboard} />
+              <Route path="/createstock" component={CreateProfile} />
+              <Route path="/edit-profile/:id" component={EditProfile} />
+              <Route
+                path="/upload-profileimage"
+                component={UploadProfileImage}
+              />
+              <Route path="/stocks" component={Stocks} />
+              <Route path="/stock/:id" component={Stock} />
+              <Route path="/qrcode/:id" component={QrCode} />
             </Switch>
-            <FooterModal />
+            {/* <FooterModal /> */}
           </div>
         </Router>
       </Provider>

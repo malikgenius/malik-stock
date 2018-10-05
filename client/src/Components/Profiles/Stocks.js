@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import SpinnerLottie from '../Common/spinnerLottie';
 import { getProfiles } from '../../actions/profileAction';
-import ProfileItem from './ProfileItem';
+import StockItem from './StockItem';
 import Pagination from 'react-js-pagination';
 // infinite scroll -- lets see if its better than pagination.
 
@@ -16,7 +16,7 @@ class Profiles extends Component {
       pages: '',
       total: '',
       limit: '',
-      page: ''
+      page: 1
     };
   }
   componentDidMount = () => {
@@ -55,32 +55,71 @@ class Profiles extends Component {
     if (profiles === null || loading) {
       profileItems = <SpinnerLottie />;
     } else {
-      if (profiles.length > 0) {
-        profileItems = profiles.map(profile => (
-          <ProfileItem key={profile._id} profile={profile} />
-        ));
-      } else {
+      if (profiles.length <= 0) {
         profileItems = <h4>No Profiles Found .. </h4>;
+        // profileItems = profiles.map(profile => (
+        // <ProfileItem profiles={profiles} />;
+        // ));
       }
     }
 
     return (
       <div className="profiles">
-        <div className="container d-none d-md-block">
+        <div className="container">
           <div className="row">
             <div className="col-md-12">
-              <h1 className="display-4 text-center">Developer Profiles</h1>
-              <p className="lead text-center">
-                Browse and connect with developers
-              </p>
-              {profileItems}
+              <h1 className="display-4 text-center">Stock Records</h1>
+              <p className="lead text-center">Search to get required records</p>
+
+              {/* This will be shown only on Mobile and small screens ... not on Desktop */}
+              <div className="container d-md-none">
+                <div className="row">
+                  <div className="col-md-12">
+                    {this.state.total ? (
+                      <div className="alert text-muted align-middle  text-center">
+                        Total records found{' '}
+                        <span className="badge badge-pill badge-info h4">
+                          {this.state.total}{' '}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="alert text-muted align-middle  text-center">
+                        <span className="badge badge-pill badge-danger h4">
+                          0
+                        </span>{' '}
+                        records found{' '}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <StockItem profiles={profiles} />
             </div>
           </div>
         </div>
 
         {/* This will be shown only on middle and big screens ... not on mobile */}
         {this.state.pages === 1 ? (
-          ''
+          <div className="container d-none d-md-block">
+            <div className="row">
+              <div className="col-4 m-auto">
+                {this.state.total ? (
+                  <div className="alert text-muted align-middle  text-center">
+                    Total records found{' '}
+                    <span className="badge badge-pill badge-info h4">
+                      {this.state.total}{' '}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="alert text-muted align-middle  text-center">
+                    <span className="badge badge-pill badge-danger h4">0</span>{' '}
+                    records found{' '}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="container d-none d-md-block">
             <div className="row">
@@ -99,31 +138,26 @@ class Profiles extends Component {
                     pageRangeDisplayed={this.state.pages}
                     onChange={this.handlePageChange}
                   />
-                  <div className="alert text-muted align-middle ">
-                    Total records found{' '}
-                    <span className="badge badge-pill badge-info h4">
-                      {this.state.total}{' '}
-                    </span>
-                  </div>
+                  {this.state.total ? (
+                    <div className="alert text-muted align-middle  text-center">
+                      Total records found{' '}
+                      <span className="badge badge-pill badge-info h4">
+                        {this.state.total}{' '}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="alert text-muted align-middle  text-center">
+                      <span className="badge badge-pill badge-danger h4">
+                        0
+                      </span>{' '}
+                      records found{' '}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* This will be shown only on Mobile and small screens ... not on Desktop */}
-
-        <div className="container d-md-none">
-          <div className="row">
-            <div className="col-md-12">
-              <h1 className="display-4 text-center">Developer`s Profiles</h1>
-              <p className="lead text-center">
-                Browse and connect with developers
-              </p>
-              {profileItems}
-            </div>
-          </div>
-        </div>
 
         {this.state.pages === 1 ? (
           ''

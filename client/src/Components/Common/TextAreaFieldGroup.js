@@ -8,6 +8,7 @@ const TextAreaFieldGroup = ({
   error,
   info,
   onChange,
+  onFocus,
   rows
 }) => {
   return (
@@ -18,6 +19,7 @@ const TextAreaFieldGroup = ({
         name={name}
         value={value}
         onChange={onChange}
+        onFocus={onFocus}
         rows={rows}
       />
       {info && <small className="form-text text-muted">{info}</small>}
