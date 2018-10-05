@@ -4,7 +4,7 @@ import { Link, withRouter } from 'react-router-dom';
 import axios from 'axios';
 import Dropzone from 'react-dropzone';
 import Cropper from 'react-cropper';
-import FormData from 'form-data';
+import S3FileUpload from 'react-s3';
 import 'cropperjs/dist/cropper.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,7 +12,21 @@ import TextFieldGroup from '../Common/TextFieldGroup';
 import TextAreaFieldGroup from '../Common/TextAreaFieldGroup';
 import InputGroup from '../Common/InputGroup';
 import SelectListGroup from '../Common/SelectListGroup';
-import { createProfile, uploadProfileImage } from '../../actions/profileAction';
+import S3Keys from '../../config/Keys';
+import {
+  createProfile,
+  uploadProfileImage,
+  uploadStockImage
+} from '../../actions/profileAction';
+
+// React-s3 Config
+const S3config = {
+  bucketName: 's3-malik',
+  dirName: 'stock_images' /* optional */,
+  region: 'us-east-2',
+  accessKeyId: S3Keys.accessKeyId,
+  secretAccessKey: S3Keys.secretAccessKey
+};
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -28,7 +42,7 @@ class CreateProfile extends Component {
       sample: '',
       status: '',
       // Dropzone files
-      files: [],
+      files: '',
       fileName: '',
       // Cropper States
       cropResult: null,
@@ -87,13 +101,20 @@ class CreateProfile extends Component {
       sample: this.state.sample,
       status: this.state.status
     };
-
+    S3FileUpload.uploadFile(this.state.files[0], S3config).then(data => {
+      console.log(data);
+    });
     // this.props.createProfile(formData, this.props.history);
-    this.props.uploadProfileImage(
-      formData,
-      this.state.files[0],
-      this.props.history
-    );
+    // this.props.uploadStockImage(
+    //   // formData,
+    //   this.state.files,
+    //   this.props.history
+    // );
+    // this.props.uploadProfileImage(
+    //   formData,
+    //   this.state.files,
+    //   this.props.history
+    // );
   };
 
   onFocus = () => {
@@ -106,6 +127,7 @@ class CreateProfile extends Component {
 
   // File Upload thorugh usual Input Tag..
   onFileChange = e => {
+    console.log(e.target.files);
     this.setState({ files: e.target.files });
   };
 
@@ -330,5 +352,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { createProfile, uploadProfileImage }
+  { createProfile, uploadProfileImage, uploadStockImage }
 )(withRouter(CreateProfile));

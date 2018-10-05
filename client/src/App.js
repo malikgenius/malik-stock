@@ -18,6 +18,7 @@ import FooterModal from './Components/FooterModal';
 // Dashboard & Profile Components
 import Dashboard from './Components/Dashboard/Dashboard';
 import CreateProfile from './Components/CreateProfile/CreateProfile';
+import ImageUpload from './Components/CreateProfile/ImageUpload';
 import EditProfile from './Components/Dashboard/EditProfile';
 import UploadProfileImage from './Components/CreateProfile/UploadProfileImage';
 
@@ -64,6 +65,7 @@ class App extends Component {
               <Route path="/notfound" component={ProfileNotFound} />
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/createstock" component={CreateProfile} />
+              <Route path="/imageupload" component={ImageUpload} />
               <Route path="/edit-profile/:id" component={EditProfile} />
               <Route
                 path="/upload-profileimage"

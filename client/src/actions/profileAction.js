@@ -94,6 +94,19 @@ export const getProfiles = page => dispatch => {
     );
 };
 
+// Multer S3 Route
+export const uploadStockImage = (file, history) => dispatch => {
+  console.log(file);
+  axios
+    .post('/api/upload', file, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .then(res => {
+      console.log(res.data);
+    });
+};
 // Get the Signed URL from s3 Through backend and then upload the image to S3 Bucket.
 export const uploadProfileImage = (
   formData,
@@ -104,7 +117,8 @@ export const uploadProfileImage = (
   console.log(file);
   const uploadS3 = await axios.put(uploadConfig.data.url, file, {
     headers: {
-      'Content-Type': file.type
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Access-Control-Allow-Origin': '*'
     }
   });
   console.log(`Axios returned from S3 ${uploadS3}`);
