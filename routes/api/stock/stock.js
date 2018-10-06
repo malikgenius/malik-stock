@@ -160,6 +160,7 @@ router.post(
       barcode,
       status,
       image,
+      filename,
       id
     } = req.body;
     // // Joi Scheme
@@ -202,7 +203,11 @@ router.post(
       image: Joi.string()
         .allow('')
         .min(5)
-        .max(200)
+        .max(300),
+      filename: Joi.string()
+        .allow('')
+        .min(1)
+        .max(300)
     };
     // Joi Validation Check
     const Validate = Joi.validate(req.body, schema);
@@ -223,7 +228,8 @@ router.post(
       sample: req.body.sample,
       barcode: req.body.barcode,
       status: req.body.status,
-      image: req.body.image
+      image: req.body.image,
+      filename: req.body.filename
     };
 
     Stock.findById(req.body.id)
@@ -279,6 +285,7 @@ router.post(
       barcode,
       status,
       image,
+      filename,
       id
     } = req.body;
     // // Joi Scheme
@@ -321,6 +328,10 @@ router.post(
       image: Joi.string()
         .allow('')
         .min(5)
+        .max(200),
+      filename: Joi.string()
+        .allow('')
+        .min(5)
         .max(200)
     };
     // Joi Validation Check
@@ -341,7 +352,8 @@ router.post(
       sample: req.body.sample,
       barcode: req.body.barcode,
       status: req.body.status,
-      image: req.body.image
+      image: req.body.image,
+      filename: req.body.filename
     };
 
     Stock.findById(req.body.id)

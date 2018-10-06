@@ -75,7 +75,7 @@ class FooterModal extends Component {
               <div className="row mr-0 ml-0">
                 <div className="col text-center">
                   <div className="py-2">
-                    <h1 className="h5">T3CH GeeGs L.L.C</h1>
+                    <h1 className="h5">MY COMPANY L.L.C</h1>
                     <p>Copyright &copy; {new Date().getFullYear()}</p>
                     <button
                       className="btn btn-outline-primary"

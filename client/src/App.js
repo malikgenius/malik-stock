@@ -16,10 +16,10 @@ import HeaderNavbar from './Components/HeaderNavbar';
 
 import FooterModal from './Components/FooterModal';
 // Dashboard & Profile Components
-import Dashboard from './Components/Dashboard/Dashboard';
+import Dashboard from './Components/Home/Dashboard';
 import CreateProfile from './Components/CreateProfile/CreateProfile';
 import ImageUpload from './Components/CreateProfile/ImageUpload';
-import EditProfile from './Components/Dashboard/EditProfile';
+import EditProfile from './Components/CreateProfile/EditProfile';
 import UploadProfileImage from './Components/CreateProfile/UploadProfileImage';
 
 // Stocks
@@ -62,6 +62,7 @@ class App extends Component {
           <div>
             <HeaderNavbar />
             <Switch>
+              <Route path="/" exact component={Dashboard} />
               <Route path="/notfound" component={ProfileNotFound} />
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/createstock" component={CreateProfile} />
@@ -75,7 +76,7 @@ class App extends Component {
               <Route path="/stock/:id" component={Stock} />
               <Route path="/qrcode/:id" component={QrCode} />
             </Switch>
-            {/* <FooterModal /> */}
+            <FooterModal />
           </div>
         </Router>
       </Provider>

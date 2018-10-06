@@ -4,9 +4,8 @@ import { Link, withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import TextFieldGroup from '../Common/TextFieldGroup';
 import TextAreaFieldGroup from '../Common/TextAreaFieldGroup';
-import Dropzone from 'react-dropzone';
-import Cropper from 'react-cropper';
-
+import fileStack from '../../config/Keys';
+import ReactFilestack, { client } from 'filestack-react';
 import { ToastContainer, toast } from 'react-toastify';
 import { editStock, getProfileById } from '../../actions/profileAction';
 import isEmpty from '../../validation/is-empty';
@@ -24,16 +23,10 @@ class EditProfile extends Component {
       box: '',
       sample: '',
       status: '',
-      // Dropzone files
-      files: [],
-      fileName: '',
-      // Cropper States
-      cropResult: null,
-      image: {},
+      filename: '',
+      image: '',
       errors: '',
-      success: '',
-      myfile: '',
-      input: ''
+      success: ''
     };
   }
   componentDidMount = () => {
@@ -61,7 +54,9 @@ class EditProfile extends Component {
         box: profile.box,
         sample: profile.sample,
         status: profile.status,
-        depth: profile.depth
+        depth: profile.depth,
+        filename: profile.filename,
+        image: profile.image
       });
     }
   }
@@ -79,7 +74,9 @@ class EditProfile extends Component {
       box: this.state.box,
       sample: this.state.sample,
       status: this.state.status,
-      depth: this.state.depth
+      depth: this.state.depth,
+      image: this.state.image,
+      filename: this.state.filename
     };
 
     this.props.editStock(profileData, this.props.history);
@@ -103,6 +100,15 @@ class EditProfile extends Component {
     });
   };
 
+  // FileStack.com Button Function on success
+  fileStackSuccess = response => {
+    console.log(response);
+    this.setState({
+      image: response.filesUploaded[0].url,
+      filename: response.filesUploaded[0].originalFile.name
+    });
+  };
+
   render() {
     const { errors, displaySocialInputs } = this.state;
 
@@ -122,7 +128,7 @@ class EditProfile extends Component {
                 >
                   Go Back
                 </Link>
-                <h1 className="display-4 text-center">Add New Product</h1>
+                <h1 className="display-4 text-center">Edit Stock Item</h1>
                 <p className="lead text-center">
                   Please fill all the fields with correct data to successfuly
                   submit the form.
@@ -204,79 +210,25 @@ class EditProfile extends Component {
                     onFocus={this.onFocus}
                     info="Status of Product"
                   />
-                  {/* testing simple file upload to compare with Dropzone */}
-                  <input
-                    type="file"
-                    value={this.state.input}
-                    onChange={this.onChange}
+
+                  <label className="mr-3">Upload Image</label>
+                  <ReactFilestack
+                    apikey={fileStack.apiKey}
+                    buttonText="Click me"
+                    buttonClass="classname"
+                    mode={'pick'}
+                    // options={options}
+                    onSuccess={response => this.fileStackSuccess(response)}
                   />
                   <div className="row container">
-                    <div className="mb-3 col-md-4">
-                      <Dropzone
-                        onDrop={this.onDrop}
-                        // multiple={false}
-                        // style={{ maxHeight: '100px', maxWidth: '100px' }}
-                      >
-                        <div className="text-center mt-4">
-                          <i className="fas fa-upload fa-4x text-center mb-3" />
-                          <p className="lead text-center mb-5">
-                            Drop Image here
-                          </p>
-                        </div>
-                      </Dropzone>
-                    </div>
-                    <div className=" col-md-4">
-                      {this.state.files[0] && (
-                        <Cropper
-                          style={{
-                            maxHeight: '200px',
-                            maxWidth: '200px',
-                            marginTop: 0
-                          }}
-                          ref="cropper"
-                          src={this.state.files[0].preview}
-                          //Rectangle image settings
-                          // aspectRatio={16 / 9}
-                          // square image settings
-                          aspectRatio={1}
-                          viewMode={0}
-                          dragMode="move"
-                          guides={true}
-                          // scalable will let user freely crop
-                          scalable={false}
-                          cropBoxMovable={true}
-                          cropBoxResizable={true}
-                          crop={this.cropImage}
-                        />
-                      )}
-                    </div>
-                    {this.state.files[0] && (
-                      <div className="m-auto col-md-4">
-                        <img
-                          // className="col col-md-12"
-                          style={{ maxHeight: '200px', maxWidth: '200px' }}
-                          src={this.state.cropResult}
-                        />
-                        <div className="btn group col col-md-12">
-                          <button
-                            className="success"
-                            type="button"
-                            onClick={this.uploadImage}
-                          >
-                            <i className="fas fa-check " />
-                          </button>
-                          <button className="success" type="button">
-                            <i className="far fa-times-circle" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                    <div className="mb-3 col-md-4" />
+                    <div className=" col-md-4" />
                   </div>
 
                   <input
                     type="submit"
                     value="Submit"
-                    className="btn btn-info btn-block mt-4"
+                    className="btn btn-info btn-block mt-4 mb-4"
                   />
                 </form>
 

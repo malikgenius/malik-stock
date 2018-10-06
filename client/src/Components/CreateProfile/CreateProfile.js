@@ -1,32 +1,29 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import axios from 'axios';
-import Dropzone from 'react-dropzone';
-import Cropper from 'react-cropper';
-import S3FileUpload from 'react-s3';
+import ReactS3Uploader from 'react-s3-uploader';
+import ReactFilestack, { client } from 'filestack-react';
+// core cloudinary library
+import cloudinary from 'cloudinary-core';
+// cloudinary react SDK
+import {
+  Image,
+  Video,
+  CloudinaryContext,
+  Transformation
+} from 'cloudinary-react';
 import 'cropperjs/dist/cropper.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TextFieldGroup from '../Common/TextFieldGroup';
 import TextAreaFieldGroup from '../Common/TextAreaFieldGroup';
-import InputGroup from '../Common/InputGroup';
-import SelectListGroup from '../Common/SelectListGroup';
-import S3Keys from '../../config/Keys';
+
+import fileStack from '../../config/Keys';
 import {
   createProfile,
   uploadProfileImage,
   uploadStockImage
 } from '../../actions/profileAction';
-
-// React-s3 Config
-const S3config = {
-  bucketName: 's3-malik',
-  dirName: 'stock_images' /* optional */,
-  region: 'us-east-2',
-  accessKeyId: S3Keys.accessKeyId,
-  secretAccessKey: S3Keys.secretAccessKey
-};
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -41,16 +38,10 @@ class CreateProfile extends Component {
       box: '',
       sample: '',
       status: '',
-      // Dropzone files
-      files: '',
-      fileName: '',
-      // Cropper States
-      cropResult: null,
-      image: {},
+      filename: '',
+      image: '',
       errors: '',
-      success: '',
-      myfile: '',
-      input: ''
+      success: ''
     };
   }
 
@@ -79,14 +70,6 @@ class CreateProfile extends Component {
     });
   };
 
-  // when clicked on cancel
-  cancelCrop = () => {
-    this.setState({
-      files: [],
-      image: {}
-    });
-  };
-
   onSubmit = e => {
     e.preventDefault();
     const formData = {
@@ -96,25 +79,22 @@ class CreateProfile extends Component {
       side: this.state.side,
       well: this.state.well,
       depth: this.state.depth,
-      // cropResult: this.state.cropResult,
       box: this.state.box,
       sample: this.state.sample,
-      status: this.state.status
+      status: this.state.status,
+      image: this.state.image,
+      filename: this.state.filename
     };
-    S3FileUpload.uploadFile(this.state.files[0], S3config).then(data => {
-      console.log(data);
-    });
-    // this.props.createProfile(formData, this.props.history);
-    // this.props.uploadStockImage(
-    //   // formData,
-    //   this.state.files,
-    //   this.props.history
-    // );
-    // this.props.uploadProfileImage(
-    //   formData,
-    //   this.state.files,
-    //   this.props.history
-    // );
+    this.props.createProfile(formData, this.props.history);
+    // if (this.state.files) {
+    //   S3FileUpload.uploadFile(this.state.files[0], S3config).then(data => {
+    //     console.log(data);
+    //     // have to add uploadFile in formData but its not working so leave it for now.
+    //     this.props.createProfile(formData, this.props.history);
+    //   });
+    // } else {
+    //   this.props.createProfile(formData, this.props.history);
+    // }
   };
 
   onFocus = () => {
@@ -125,33 +105,16 @@ class CreateProfile extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  // File Upload thorugh usual Input Tag..
-  onFileChange = e => {
-    console.log(e.target.files);
-    this.setState({ files: e.target.files });
+  // FileStack.com Button Function on success
+  fileStackSuccess = response => {
+    console.log(response);
+    this.setState({
+      image: response.filesUploaded[0].url,
+      filename: response.filesUploaded[0].originalFile.name
+    });
   };
 
   // Dropzone
-  onDrop = files => {
-    this.setState({
-      files,
-      fileName: files[0].name
-    });
-  };
-  // Cropper
-  cropImage = () => {
-    if (typeof this.refs.cropper.getCroppedCanvas() === 'undefined') {
-      return;
-    }
-    this.refs.cropper.getCroppedCanvas().toBlob(blob => {
-      let imageUrl = URL.createObjectURL(blob);
-      console.log(imageUrl);
-      this.setState({
-        cropResult: imageUrl,
-        image: blob
-      });
-    }, 'image/jpg');
-  };
 
   render() {
     const { errors, success, displaySocialInputs } = this.state;
@@ -246,77 +209,30 @@ class CreateProfile extends Component {
                   onFocus={this.onFocus}
                   info="Status of Product"
                 />
-                {/* testing simple file upload to compare with Dropzone */}
-                <input
-                  type="file"
-                  // value={this.state.files}
-                  onChange={this.onFileChange}
+                <label className="mr-3 mb-4">Upload Image</label>
+                <ReactFilestack
+                  apikey={fileStack.apiKey}
+                  buttonText="Click me"
+                  buttonClass="classname"
+                  mode={'pick'}
+                  // options={options}
+                  onSuccess={response => this.fileStackSuccess(response)}
                 />
+                <CloudinaryContext cloudName="demo">
+                  <Image publicId="sample">
+                    <Transformation width="200" crop="scale" angle="10" />
+                  </Image>
+                </CloudinaryContext>
+
                 <div className="row container">
-                  <div className="mb-3 col-md-4">
-                    <Dropzone
-                      onDrop={this.onDrop}
-                      // multiple={false}
-                      // style={{ maxHeight: '100px', maxWidth: '100px' }}
-                    >
-                      <div className="text-center mt-4">
-                        <i className="fas fa-upload fa-4x text-center mb-3" />
-                        <p className="lead text-center mb-5">Drop Image here</p>
-                      </div>
-                    </Dropzone>
-                  </div>
-                  <div className=" col-md-4">
-                    {this.state.files[0] && (
-                      <Cropper
-                        style={{
-                          maxHeight: '200px',
-                          maxWidth: '200px',
-                          marginTop: 0
-                        }}
-                        ref="cropper"
-                        src={this.state.files[0].preview}
-                        //Rectangle image settings
-                        // aspectRatio={16 / 9}
-                        // square image settings
-                        aspectRatio={1}
-                        viewMode={0}
-                        dragMode="move"
-                        guides={true}
-                        // scalable will let user freely crop
-                        scalable={false}
-                        cropBoxMovable={true}
-                        cropBoxResizable={true}
-                        crop={this.cropImage}
-                      />
-                    )}
-                  </div>
-                  {this.state.files[0] && (
-                    <div className="m-auto col-md-4">
-                      <img
-                        // className="col col-md-12"
-                        style={{ maxHeight: '200px', maxWidth: '200px' }}
-                        src={this.state.cropResult}
-                      />
-                      <div className="btn group col col-md-12">
-                        <button
-                          className="success"
-                          type="button"
-                          onClick={this.uploadImage}
-                        >
-                          <i className="fas fa-check " />
-                        </button>
-                        <button className="success" type="button">
-                          <i className="far fa-times-circle" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <div className="mb-3 col-md-4" />
+                  <div className=" col-md-4" />
                 </div>
 
                 <input
                   type="submit"
                   value="Submit"
-                  className="btn btn-info btn-block mt-4"
+                  className="btn btn-info btn-block mt-4 mb-4"
                 />
               </form>
 

@@ -57,6 +57,9 @@ const StockSchema = new Schema({
   image: {
     type: String
   },
+  filename: {
+    type: String
+  },
 
   date: {
     type: Date,

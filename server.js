@@ -25,7 +25,7 @@ const upload = require('./routes/api/stock/uploadRoute');
 
 // MiddleWare
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('combined'));
 app.use(passport.initialize());
 
@@ -43,14 +43,14 @@ app.use(
 );
 
 // CORS Allowed, if app sends request to thirdparty we need CORS or will get an error.
-// app.use(function(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept'
-//   );
-//   next();
-// });
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  next();
+});
 
 // Routes
 // app.use('/api/push', push);
