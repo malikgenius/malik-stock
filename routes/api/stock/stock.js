@@ -159,8 +159,8 @@ router.post(
       type,
       barcode,
       status,
-      image,
-      filename,
+      imageurl,
+      imagepublicid,
       id
     } = req.body;
     // // Joi Scheme
@@ -200,11 +200,11 @@ router.post(
         .max(200)
         .allow(''),
       status: Joi.string().allow(''),
-      image: Joi.string()
+      imagepublicid: Joi.string()
         .allow('')
         .min(5)
         .max(300),
-      filename: Joi.string()
+      imageurl: Joi.string()
         .allow('')
         .min(1)
         .max(300)
@@ -228,8 +228,8 @@ router.post(
       sample: req.body.sample,
       barcode: req.body.barcode,
       status: req.body.status,
-      image: req.body.image,
-      filename: req.body.filename
+      imagepublicid: req.body.imagepublicid,
+      imageurl: req.body.imageurl
     };
 
     Stock.findById(req.body.id)
@@ -284,8 +284,8 @@ router.post(
       sample,
       barcode,
       status,
-      image,
-      filename,
+      imageurl,
+      imagepublicid,
       id
     } = req.body;
     // // Joi Scheme
@@ -325,11 +325,11 @@ router.post(
         .max(200)
         .allow(''),
       status: Joi.string().allow(''),
-      image: Joi.string()
+      imageurl: Joi.string()
         .allow('')
         .min(5)
-        .max(200),
-      filename: Joi.string()
+        .max(300),
+      imagepublicid: Joi.string()
         .allow('')
         .min(5)
         .max(200)
@@ -352,8 +352,8 @@ router.post(
       sample: req.body.sample,
       barcode: req.body.barcode,
       status: req.body.status,
-      image: req.body.image,
-      filename: req.body.filename
+      imageurl: req.body.imageurl,
+      imagepublicid: req.body.imagepublicid
     };
 
     Stock.findById(req.body.id)

@@ -9,7 +9,7 @@ import 'cropperjs/dist/cropper.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { uploadProfileImage } from '../../actions/profileAction';
+// import { uploadProfileImage } from '../../actions/profileAction';
 
 class UploadProfileImage extends Component {
   constructor(props) {
@@ -81,7 +81,7 @@ class UploadProfileImage extends Component {
     formData.append('file', this.state.files[0], this.state.files[0].filename);
     // formData.append('file', this.state.cropResult);
     const options = { content: formData };
-    this.props.uploadProfileImage(formData, this.props.history);
+    // this.props.uploadProfileImage(formData, this.props.history);
     // normal Way of sending data to redux / axios- i just named it form Data
   };
 
@@ -259,5 +259,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { uploadProfileImage }
+  {}
 )(withRouter(UploadProfileImage));

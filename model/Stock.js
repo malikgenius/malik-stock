@@ -54,10 +54,10 @@ const StockSchema = new Schema({
   status: {
     type: String
   },
-  image: {
+  imagepublicid: {
     type: String
   },
-  filename: {
+  imageurl: {
     type: String
   },
 

@@ -97,11 +97,11 @@ class Profile extends Component {
               <br />
             </div>
             <div className="lead flex-fill ">
-              {profile.image ? (
-                <a href={profile.image} target="_blank">
+              {profile.imageurl ? (
+                <a href={profile.imageurl} target="_blank">
                   <img
                     className="rounded mx-auto d-block"
-                    src={profile.image}
+                    src={profile.imageurl}
                     alt="Stock Image"
                     style={{ width: '300px' }}
                   />

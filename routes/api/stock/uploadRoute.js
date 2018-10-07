@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+var path = require('path');
 const passport = require('passport');
 const AWS = require('aws-sdk');
 var multer = require('multer');
@@ -9,26 +10,6 @@ const multiparty = require('multiparty');
 const cloudinary = require('cloudinary');
 const accessKeyId = require('../../../config/Keys').api_key;
 const secretAccessKey = require('../../../config/Keys').api_secret;
-// multer DiskStorage config
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(
-      null, // windows upload path to store the image.
-      '/Users/malik.TBWAZEENAH/Desktop/fullstack Projects/fusion-mern/tmp/uploads'
-    );
-  },
-  filename: function(req, file, cb) {
-    // cb(null, file.fieldname + '-' + Date.now() + '.jpg');
-    // below will not change the name but will put originalname + date
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-// Multer upload all in one configured here rather than in router.
-const upload = multer({
-  storage: storage
-  // filesize limit can be configured in bytes.
-  // limits: { filesize: 100000000 }
-}).any('files');
 
 // Cloudinary Config
 cloudinary.config({
@@ -36,6 +17,50 @@ cloudinary.config({
   api_key: accessKeyId,
   api_secret: secretAccessKey
 });
+// multer DiskStorage config WITHOUT LOCAL PATH -- working great as well
+// C:\Users\malik.TBWAZEENAH\AppData\Local\Temp is the path to store images, we can empty it maybe every 24hours.
+const storage = multer.diskStorage({
+  filename: (req, file, cb) => {
+    // add extension to the file, through path model we can add original ext to below.
+    cb(null, Date.now() + file.originalname + path.extname(file.originalname));
+  }
+  // filename: function(req, file, cb) {
+  //   // cb(null, file.fieldname + '-' + Date.now() + '.jpg');
+  //   // below will not change the name but will put originalname + date
+  //   cb(null, Date.now() + '-' + file.originalname + file.mimetype);
+  // }
+});
+
+// // multer DiskStorage config With Local Path ... WORKING GREAT
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(
+//       null, // windows upload path to store the image.
+//       '/Users/malik.TBWAZEENAH/Desktop/fullstack Projects/fusion-mern/tmp/uploads'
+//     );
+//   },
+//   filename: function(req, file, cb) {
+//     // cb(null, file.fieldname + '-' + Date.now() + '.jpg');
+//     // below will not change the name but will put originalname + date
+//     cb(null, Date.now() + '-' + file.originalname);
+//   }
+// });
+// Multer upload all in one configured here rather than in router.
+// .any will take other props as well but if we want to only upload single image and not normal data. then use .single('file')
+// const upload = multer({
+//   storage: storage
+//   // filesize limit can be configured in bytes.
+//   // limits: { filesize: 100000000 }
+// }).any('files');
+
+// Single Image without any other data .. direct from the form
+const upload = multer({
+  storage: storage
+  // filesize limit can be configured in bytes.
+  // limits: { filesize: 1e6 }
+}).single('file');
+//testing only multer without any option
+
 // testing Brad Traversy style of multer usage.
 router.post('/', (req, res) => {
   // here multer comes second so we can get the res from multer upload.
@@ -43,7 +68,26 @@ router.post('/', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(req.files);
+      // console.log(req.files[0]);
+      // return console.log(req.file);
+      // console.log(req.body);
+
+      console.log(req.body);
+      cloudinary.v2.uploader.upload(
+        // need path of the file, if its single we dont need req.files[0].path
+        req.file.path,
+        (err, response) => {
+          console.log(response, err);
+          const imageURL = response.secure_url;
+          const imageName = response.original_name;
+          // console.log(imageURL, imageName);
+          res.json(response);
+          // });
+          // .catch(err => {
+          //   res.status(400).send(err);
+          // });
+        }
+      );
     }
   });
 });

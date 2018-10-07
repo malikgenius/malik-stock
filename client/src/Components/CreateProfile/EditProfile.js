@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import _ from 'lodash';
+import axios from 'axios';
+import FormData from 'form-data';
+import Dropzone from 'react-dropzone';
+import Cropper from 'react-cropper';
+// cloudinary react SDK
+import { Image, CloudinaryContext, Transformation } from 'cloudinary-react';
+import 'cropperjs/dist/cropper.css';
 import TextFieldGroup from '../Common/TextFieldGroup';
 import TextAreaFieldGroup from '../Common/TextAreaFieldGroup';
-import fileStack from '../../config/Keys';
-import ReactFilestack, { client } from 'filestack-react';
 import { ToastContainer, toast } from 'react-toastify';
+import Spinner from '../Common/spinnerLottie';
 import { editStock, getProfileById } from '../../actions/profileAction';
 import isEmpty from '../../validation/is-empty';
 
@@ -23,10 +28,14 @@ class EditProfile extends Component {
       box: '',
       sample: '',
       status: '',
-      filename: '',
-      image: '',
+      files: '',
+      imageurl: '',
+      imagepublicid: '',
+      cropResult: null,
+      image: {},
       errors: '',
-      success: ''
+      success: '',
+      disabled: false
     };
   }
   componentDidMount = () => {
@@ -55,11 +64,94 @@ class EditProfile extends Component {
         sample: profile.sample,
         status: profile.status,
         depth: profile.depth,
-        filename: profile.filename,
-        image: profile.image
+        imageurl: profile.imageurl,
+        imagepublicid: profile.imagepublicid
       });
     }
   }
+  //clear any errors on Focus
+  onFocus = () => {
+    this.setState({ errors: '' });
+  };
+  onChange = e => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+  // Toast Notifications
+  toastNotify = () => {
+    // toast('Default Notification !');
+    if (this.state.success) {
+      toast.success(this.state.success, {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }
+
+    toast.error(this.state.errors, {
+      position: toast.POSITION.TOP_LEFT
+    });
+  };
+  // IMAGE FUNCTIONS ALL HERE ..
+  // Dropzone
+  onDrop = files => {
+    this.setState({
+      files,
+      filename: files[0].name
+    });
+  };
+  // Cropper
+  cropImage = () => {
+    if (typeof this.refs.cropper.getCroppedCanvas() === 'undefined') {
+      return;
+    }
+    this.refs.cropper.getCroppedCanvas().toBlob(blob => {
+      let imageUrl = URL.createObjectURL(blob);
+      console.log(imageUrl);
+      console.log(this.state.image);
+      this.setState({
+        cropResult: imageUrl,
+        image: blob
+      });
+    }, 'image/jpeg');
+  };
+
+  // upload Image from DropZONE and Cropper .. when click on check in dropzone preview
+  uploadImage = async () => {
+    //disable submit button, user shouldnt be able to submit before image upload
+    this.setState({ disabled: true });
+    const file = this.state.image;
+    const formData = new FormData();
+    // this.setState({ files: e.target.files });
+    formData.append('file', file);
+    await axios
+      .post('/api/upload', formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        // headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      .then(res => {
+        console.log(res.data);
+        this.setState({
+          imageurl: res.data.secure_url,
+          imagepublicid: res.data.public_id,
+          disabled: false
+        });
+      });
+    this.cancelCrop();
+  };
+  // when clicked on cancel
+  cancelCrop = () => {
+    this.setState({
+      files: [],
+      image: {}
+    });
+  };
+
+  // FileStack.com Button Function on success
+  // fileStackSuccess = response => {
+  //   console.log(response);
+  //   this.setState({
+  //     image: response.filesUploaded[0].url,
+  //     filename: response.filesUploaded[0].originalFile.name
+  //   });
+  // };
 
   onSubmit = e => {
     e.preventDefault();
@@ -75,38 +167,11 @@ class EditProfile extends Component {
       sample: this.state.sample,
       status: this.state.status,
       depth: this.state.depth,
-      image: this.state.image,
-      filename: this.state.filename
+      imageurl: this.state.imageurl,
+      imagepublicid: this.state.imagepublicid
     };
 
     this.props.editStock(profileData, this.props.history);
-  };
-
-  onChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  // Toast Notifications
-  toastNotify = () => {
-    // toast('Default Notification !');
-    if (this.state.success) {
-      toast.success(this.state.success, {
-        position: toast.POSITION.TOP_CENTER
-      });
-    }
-
-    toast.error(this.state.errors, {
-      position: toast.POSITION.TOP_LEFT
-    });
-  };
-
-  // FileStack.com Button Function on success
-  fileStackSuccess = response => {
-    console.log(response);
-    this.setState({
-      image: response.filesUploaded[0].url,
-      filename: response.filesUploaded[0].originalFile.name
-    });
   };
 
   render() {
@@ -211,25 +276,100 @@ class EditProfile extends Component {
                     info="Status of Product"
                   />
 
-                  <label className="mr-3">Upload Image</label>
-                  <ReactFilestack
-                    apikey={fileStack.apiKey}
-                    buttonText="Click me"
-                    buttonClass="classname"
-                    mode={'pick'}
-                    // options={options}
-                    onSuccess={response => this.fileStackSuccess(response)}
-                  />
+                  {/* DropZONE & CropperJS dropping and cropping at same time ..  */}
                   <div className="row container">
-                    <div className="mb-3 col-md-4" />
-                    <div className=" col-md-4" />
+                    <div className="mb-3 col-md-4">
+                      <Dropzone
+                        onDrop={this.onDrop}
+                        // multiple={false}
+                        // style={{ maxHeight: '100px', maxWidth: '100px' }}
+                      >
+                        <div className="text-center mt-4">
+                          <i className="fas fa-upload fa-4x text-center mb-3" />
+                          <p className="lead text-center mb-5">
+                            Drop Image here
+                          </p>
+                        </div>
+                      </Dropzone>
+                    </div>
+                    <div className=" col-md-4">
+                      {this.state.files[0] ? (
+                        <Cropper
+                          style={{
+                            maxHeight: '200px',
+                            maxWidth: '200px',
+                            marginTop: 0
+                          }}
+                          ref="cropper"
+                          src={this.state.files[0].preview}
+                          //Rectangle image settings
+                          // aspectRatio={16 / 9}
+                          // square image settings
+                          aspectRatio={1}
+                          viewMode={0}
+                          dragMode="move"
+                          guides={true}
+                          // scalable will let user freely crop
+                          scalable={false}
+                          cropBoxMovable={true}
+                          cropBoxResizable={true}
+                          crop={this.cropImage}
+                        />
+                      ) : (
+                        <CloudinaryContext cloudName="malikgen">
+                          <Image publicId={this.state.imagepublicid}>
+                            <Transformation
+                              width="200"
+                              crop="scale"
+                              angle="10"
+                            />
+                          </Image>
+                        </CloudinaryContext>
+                      )}
+                    </div>
+                    {this.state.files[0] && (
+                      <div className="m-auto col-md-4">
+                        <img
+                          // className="col col-md-12"
+                          style={{ maxHeight: '200px', maxWidth: '200px' }}
+                          src={this.state.cropResult}
+                        />
+                        <div className="btn group col col-md-12">
+                          <button
+                            className="success"
+                            type="button"
+                            onClick={this.uploadImage}
+                          >
+                            <i className="fas fa-check " />
+                          </button>
+                          <button
+                            className="success"
+                            type="button"
+                            onClick={this.cancelCrop}
+                          >
+                            <i className="far fa-times-circle" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  <input
-                    type="submit"
-                    value="Submit"
-                    className="btn btn-info btn-block mt-4 mb-4"
-                  />
+                  {this.state.disabled ? (
+                    <Spinner />
+                  ) : (
+                    <div>
+                      {' '}
+                      <div className="row container">
+                        <div className="mb-3 col-md-4" />
+                        <div className=" col-md-4" />
+                      </div>
+                      <input
+                        type="submit"
+                        value="Submit"
+                        className="btn btn-info btn-block mt-4 mb-4"
+                        disabled={this.state.disabled}
+                      />
+                    </div>
+                  )}
                 </form>
 
                 <ToastContainer />

@@ -70,7 +70,7 @@ export const getProfileById = id => dispatch => {
     });
 };
 
-// Multer S3 Route
+// Multer S3 Route -- i am doing it within form to get the Image url from cloudinary, see createprofile.js
 export const uploadStockImage = (formData, history) => dispatch => {
   console.log(formData);
   axios
@@ -82,48 +82,19 @@ export const uploadStockImage = (formData, history) => dispatch => {
       console.log(res.data);
     });
 };
-// Get the Signed URL from s3 Through backend and then upload the image to S3 Bucket.
-export const uploadProfileImage = (
-  formData,
-  file,
-  history
-) => async dispatch => {
-  const uploadConfig = await axios.get('api/upload');
-  console.log(file);
-  const uploadS3 = await axios.put(uploadConfig.data.url, file, {
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8',
-      'Access-Control-Allow-Origin': '*'
-    }
-  });
-  console.log(`Axios returned from S3 ${uploadS3}`);
-  // axios
-  //   .post('/api/upload', formData, {
-  //     headers: {
-  //       'Content-Type': `application/x-www-form-urlencoded`,
-  //       enctype: 'multipart/form-data'
-  //     }
-  //   })
-  //   .then(res => {
-  //     console.log(res.data);
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //   });
-};
 
 // CREATE STOCK
-export const createProfile = (profileData, history) => dispatch => {
-  console.log(profileData);
+export const createProfile = (formData, history) => dispatch => {
+  console.log(formData);
   axios
-    .post('/api/stock', profileData)
+    .post('/api/stock', formData)
     .then(res => {
       console.log(res.data);
       dispatch({
         type: GET_PROFILE,
         payload: res.data
       });
-      history.push('/stocks');
+      history.push(`/stock/${res.data._id}`);
     })
     .catch(err => {
       console.log(err);

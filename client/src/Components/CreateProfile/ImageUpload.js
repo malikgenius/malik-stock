@@ -6,7 +6,7 @@ import axios from 'axios';
 // import FormData from 'form-data';
 import {
   createProfile,
-  uploadProfileImage,
+  // uploadProfileImage,
   uploadStockImage
 } from '../../actions/profileAction';
 import cloudinary from '../../config/Keys';
@@ -120,5 +120,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { createProfile, uploadProfileImage, uploadStockImage }
+  { createProfile, uploadStockImage }
 )(withRouter(ImageUpload));
