@@ -39,6 +39,34 @@ export const getProfiles = page => dispatch => {
     );
 };
 
+// SEARCH PROFILES FOR SPECIFIC RECORD
+export const getSearchedProfiles = (page, search, option) => dispatch => {
+  dispatch(setProfileLoading());
+  axios
+    .get(`/api/stock/search`, {
+      params: { page, search, option }
+    })
+    .then(res => {
+      dispatch({
+        type: GET_PROFILES,
+        payload: res.data.docs
+      });
+      // GET pagination will get all the extra pagination options to redux store
+      // total records, page number, records per page .. etc from server.
+      // this will go to Component local state via nextProps to <Pagination /> comp.
+      dispatch({
+        type: GET_PAGINATION_PAGES,
+        payload: res.data
+      });
+    })
+    .catch(err =>
+      dispatch({
+        type: GET_PROFILES,
+        payload: null
+      })
+    );
+};
+
 export const getProfileByHandle = () => {};
 // Get Profile by ID
 export const getProfileById = id => dispatch => {
@@ -58,7 +86,6 @@ export const getProfileById = id => dispatch => {
       // if wrong handle name, we have a null profile, nextProps in Profile.js will redirect it to Page not Found route.
     )
     .catch(err => {
-      console.log(err);
       dispatch({
         type: GET_PROFILE,
         payload: null
@@ -72,24 +99,19 @@ export const getProfileById = id => dispatch => {
 
 // Multer S3 Route -- i am doing it within form to get the Image url from cloudinary, see createprofile.js
 export const uploadStockImage = (formData, history) => dispatch => {
-  console.log(formData);
   axios
     .post('/api/upload', formData, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       // headers: { 'Content-Type': 'multipart/form-data' }
     })
-    .then(res => {
-      console.log(res.data);
-    });
+    .then(res => {});
 };
 
 // CREATE STOCK
 export const createProfile = (formData, history) => dispatch => {
-  console.log(formData);
   axios
     .post('/api/stock', formData)
     .then(res => {
-      console.log(res.data);
       dispatch({
         type: GET_PROFILE,
         payload: res.data
@@ -97,7 +119,6 @@ export const createProfile = (formData, history) => dispatch => {
       history.push(`/stock/${res.data._id}`);
     })
     .catch(err => {
-      console.log(err);
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -107,11 +128,9 @@ export const createProfile = (formData, history) => dispatch => {
 
 // Edit Stock
 export const editStock = (profileData, history) => dispatch => {
-  console.log(profileData);
   axios
     .post('/api/stock/edit', profileData)
     .then(res => {
-      console.log(res.data);
       dispatch({
         type: GET_PROFILE,
         payload: res.data
@@ -119,7 +138,6 @@ export const editStock = (profileData, history) => dispatch => {
       history.push('/stocks');
     })
     .catch(err => {
-      console.log(err);
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -129,7 +147,6 @@ export const editStock = (profileData, history) => dispatch => {
 
 // Delete Stock
 export const deleteStock = (id, history) => dispatch => {
-  console.log(id);
   if (
     // window.confirm will popup an alert from browser ..
     window.confirm('are you sure? you want to delete this Record.')

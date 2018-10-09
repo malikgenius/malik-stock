@@ -46,7 +46,7 @@ class QrCode extends Component {
                 // value="https://localhost:3000/"
                 // here we will share
                 value={`
-                ${'        '}https://localhost:3000/stock/${profile._id}
+                ${'        '}https://www.malikgen.com/stock/${profile._id}
                 `}
                 // size={'128'}
                 // bgColor={'#0000FF'}

@@ -73,9 +73,15 @@ class HeaderNavbar extends React.Component {
               </li>
               <Link
                 className="nav-link btn btn-link border-0 text-muted"
+                to="/search-stock"
+              >
+                Search Stock
+              </Link>
+              <Link
+                className="nav-link btn btn-link border-0 text-muted"
                 to="/createstock"
               >
-                create stock
+                Create Stock
               </Link>
               <li className="nav-item">
                 <a className="nav-link disabled" href="#">

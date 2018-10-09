@@ -13,7 +13,6 @@ import configureStore from './reducers';
 import PrivateRoute from './Components/Common/PrivateRoute';
 // Components
 import HeaderNavbar from './Components/HeaderNavbar';
-
 import FooterModal from './Components/FooterModal';
 // Dashboard & Profile Components
 import Dashboard from './Components/Home/Dashboard';
@@ -21,9 +20,9 @@ import CreateProfile from './Components/CreateProfile/CreateProfile';
 import ImageUpload from './Components/CreateProfile/ImageUpload';
 import EditProfile from './Components/CreateProfile/EditProfile';
 import UploadProfileImage from './Components/CreateProfile/UploadProfileImage';
-
 // Stocks
 import Stocks from './Components/Profiles/Stocks';
+import SearchStocks from './Components/SearchStocks/SearchStocks';
 import Stock from './Components/Profile/Stock';
 import ProfileNotFound from './Components/Profile/ProfileNotFound';
 import QrCode from './Components/Profile/QrCode';
@@ -73,6 +72,7 @@ class App extends Component {
                 component={UploadProfileImage}
               />
               <Route path="/stocks" component={Stocks} />
+              <Route path="/search-stock" component={SearchStocks} />
               <Route path="/stock/:id" component={Stock} />
               <Route path="/qrcode/:id" component={QrCode} />
             </Switch>

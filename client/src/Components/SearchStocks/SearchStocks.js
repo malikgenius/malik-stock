@@ -1,5 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {
+  Button,
+  InputGroup,
+  InputGroupButtonDropdown,
+  Input,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
+} from 'reactstrap';
 // Search bar imports
 import SpinnerLottie from '../Common/spinnerLottie';
 import { getProfiles, getSearchedProfiles } from '../../actions/profileAction';
@@ -7,14 +16,15 @@ import StockItem from './StockItem';
 import Pagination from 'react-js-pagination';
 //Below one is  More famous than react-js-pagination
 import ReactPaginate from 'react-paginate';
-import SearchBar from '../Common/SearchBar';
 
-class Profiles extends Component {
+class SearchStocks extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // search: '',
-      // option: '',
+      dropdownOpen: false,
+      splitButtonOpen: false,
+      search: '',
+      option: 'bay',
       activePage: 1,
       pages: '',
       total: '',
@@ -22,10 +32,10 @@ class Profiles extends Component {
       page: 1
     };
   }
-  componentDidMount = () => {
-    this.setState({ page: this.props.profile.page });
-    this.props.getProfiles(this.props.profile.page);
-  };
+  //   componentDidMount = () => {
+  //     this.setState({ page: this.props.profile.page });
+  //     this.props.getProfiles(this.props.profile.page);
+  //   };
   componentWillReceiveProps = nextProps => {
     // this will define which page user was on the last time.
     if (nextProps.profile.page) {
@@ -42,42 +52,38 @@ class Profiles extends Component {
     }
   };
 
-  toggleDropDown() {
+  toggleDropDown = () => {
     this.setState({
       dropdownOpen: !this.state.dropdownOpen
     });
-  }
+  };
+
+  // search onChange options..
+  onChange = e => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+  // sending data to Stocks like search and option.
+  onSearchClicked = () => {
+    // const formData = {
+    const search = this.state.search;
+    const option = this.state.option;
+    // };
+    this.props.getSearchedProfiles(this.state.activePage, search, option);
+    // console.log(formData);
+  };
 
   handlePageChange = pageToLoad => {
-    // console.log(`active page is ${pageNumber}`);
+    const search = this.state.search;
+    const option = this.state.option;
     this.setState({ activePage: pageToLoad });
-    this.props.getProfiles(pageToLoad);
+    this.props.getSearchedProfiles(pageToLoad, search, option);
     // if (pageNumber !== this.state.pages) {
     //   this.setState({ hasMore: true });
     // }
   };
 
-  onSearched = (search, option) => {
-    // console.log(formData);
-    this.props.getSearchedProfiles(this.state.activePage, search, option);
-  };
-
   render() {
     const { profiles, loading } = this.props.profile;
-    // let profileItems;
-
-    // if (profiles === null || loading) {
-    //   profileItems = <SpinnerLottie />;
-    // } else {
-    //   if (profiles.length <= 0) {
-    //     profileItems = <h4>No Profiles Found .. </h4>;
-    //     // profileItems = profiles.map(profile => (
-    //     // <ProfileItem profiles={profiles} />;
-    //     // ));
-    //   } else {
-    //     <StockItem profiles={profiles} />;
-    //   }
-    // }
 
     return (
       <div className="profiles">
@@ -87,8 +93,82 @@ class Profiles extends Component {
               <h1 className="display-4 text-center">Stock Records</h1>
               <p className="lead text-center">Search to get required records</p>
               {/* Searchbar to search the stocks ..  */}
+              <div style={{ marginTop: 50, marginBottom: 50 }}>
+                <InputGroup>
+                  <InputGroupButtonDropdown
+                    addonType="append"
+                    isOpen={this.state.dropdownOpen}
+                    toggle={this.toggleDropDown}
+                  >
+                    <Button
+                      className="btn btn-outline-info btn-lg"
+                      onClick={this.onSearchClicked}
+                    >
+                      {this.state.option}
+                    </Button>
+                    <DropdownToggle split outline caret />
+                    <DropdownMenu>
+                      <DropdownItem
+                        value="_id"
+                        name="option"
+                        onClick={this.onChange}
+                        // onClick={this.props.sortByChange}
+                      >
+                        ID
+                      </DropdownItem>
+                      {/* <DropdownItem value="department" onClick={this.props.sortByChange}>Department</DropdownItem> */}
+                      <DropdownItem
+                        value="bay"
+                        name="option"
+                        onClick={this.onChange}
+                        // onClick={this.props.searchchange}
+                      >
+                        BAY
+                      </DropdownItem>
+                      <DropdownItem
+                        value="box"
+                        name="option"
+                        onClick={this.onChange}
+                        // onClick={this.props.searchchange}
+                      >
+                        BOX
+                      </DropdownItem>
+                      <DropdownItem
+                        value="row"
+                        name="option"
+                        onClick={this.onChange}
+                        // onClick={this.props.searchchange}
+                      >
+                        ROW
+                      </DropdownItem>
+                      <DropdownItem
+                        value="column"
+                        name="option"
+                        onClick={this.onChange}
+                        // onClick={this.props.searchchange}
+                      >
+                        COLUMN
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </InputGroupButtonDropdown>
+                  <Input
+                    name="search"
+                    className="p-4"
+                    placeholder="search stock"
+                    onChange={this.onChange}
+                    value={this.state.search}
+                  />
+                  <div className="input-group-prepend">
+                    <span
+                      className="input-group-text btn"
+                      onClick={this.onSearchClicked}
+                    >
+                      <i className="fab fa-searchengin text-info fa-lg" />
+                    </span>
+                  </div>
+                </InputGroup>
+              </div>
 
-              {/* <SearchBar onSearched={this.onSearched} /> */}
               {/* This will be shown only on Mobile and small screens ... not on Desktop */}
               <div className="container d-md-none">
                 <div className="row">
@@ -156,19 +236,7 @@ class Profiles extends Component {
                     pageRangeDisplayed="5"
                     onChange={this.handlePageChange}
                   />
-                  {/* <ReactPaginate
-                    className="pagination align-items-center d-sm-flex"
-                    hideDisabled
-                    previousLabel="prev"
-                    nextLabel="next"
-                    firstPageText="first"
-                    lastPageText="last"
-                    activePage={this.state.activePage}
-                    itemsCountPerPage={this.state.limit}
-                    pageCount={this.state.total}
-                    pageRangeDisplayed="5"
-                    onPageChange={this.handlePageChange}
-                  /> */}
+
                   {this.state.total ? (
                     <div className="alert text-muted align-middle  text-center">
                       Total records found{' '}
@@ -225,37 +293,6 @@ class Profiles extends Component {
             </div>
           </div>
         )}
-
-        {/* Infite Scroll starts here it will be only on Mobile Phones ..  */}
-        {/* <div className="container d-md-none">
-          <div className="row">
-            <div className="col-md-12">
-              <h1 className="display-4 text-center">Developer Profiles</h1>
-              <p className="lead text-center">
-                Browse and connect with developers
-              </p>
-            </div>
-          </div>
-          <InfiniteScroll
-            onScroll={this.handleLoadMore}
-            pageStart={0}
-            initialLoad={true}
-            loadMore={this.handleLoadMore}
-            hasMore={this.state.hasMoreItems}
-            isReverse={true}
-            loader={
-              <div className="loader" key={0}>
-                Loading ...
-              </div>
-            }
-          >
-           
-            {profileItems}
-          </InfiniteScroll>
-          <div>
-            <div />
-          </div>
-        </div> */}
       </div>
     );
   }
@@ -269,4 +306,4 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(
   mapStateToProps,
   { getProfiles, getSearchedProfiles }
-)(Profiles);
+)(SearchStocks);

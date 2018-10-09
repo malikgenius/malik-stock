@@ -35,7 +35,8 @@ class EditProfile extends Component {
       image: {},
       errors: '',
       success: '',
-      disabled: false
+      disabled: false,
+      progress: false
     };
   }
   componentDidMount = () => {
@@ -94,7 +95,8 @@ class EditProfile extends Component {
   onDrop = files => {
     this.setState({
       files,
-      filename: files[0].name
+      filename: files[0].name,
+      disabled: true
     });
   };
   // Cropper
@@ -119,7 +121,8 @@ class EditProfile extends Component {
     this.setState({ disabled: true });
     const file = this.state.image;
     const formData = new FormData();
-    // this.setState({ files: e.target.files });
+    // Spinner activated
+    this.setState({ progress: true });
     formData.append('file', file);
     await axios
       .post('/api/upload', formData, {
@@ -131,7 +134,8 @@ class EditProfile extends Component {
         this.setState({
           imageurl: res.data.secure_url,
           imagepublicid: res.data.public_id,
-          disabled: false
+          disabled: false,
+          progress: false
         });
       });
     this.cancelCrop();
@@ -140,7 +144,8 @@ class EditProfile extends Component {
   cancelCrop = () => {
     this.setState({
       files: [],
-      image: {}
+      image: {},
+      disabled: false
     });
   };
 
@@ -175,11 +180,7 @@ class EditProfile extends Component {
   };
 
   render() {
-    const { errors, displaySocialInputs } = this.state;
-
-    // const { profile, loading } = this.props.profile;
-
-    let socialInputs;
+    const { errors } = this.state;
 
     return (
       <div className="create-profile">
@@ -353,7 +354,7 @@ class EditProfile extends Component {
                       </div>
                     )}
                   </div>
-                  {this.state.disabled ? (
+                  {this.state.progress ? (
                     <Spinner />
                   ) : (
                     <div>

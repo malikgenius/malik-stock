@@ -13,7 +13,7 @@ class Dashboard extends Component {
               Authentication Goes Here..{' '}
             </div>
             <p className="lead-md small-sm text-info text-center">
-              only authenticated in users will pass this page...
+              only authenticated users will pass this page...
             </p>{' '}
           </div>
         </div>

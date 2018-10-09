@@ -19,19 +19,24 @@ router.get(
   (req, res) => {
     const errors = {};
     //paginate custom options we have to add all sorting, limiting etc in these options only.
+    console.log(req.query);
     const pageNumber = req.query.page;
+    // if (req.query.page)
     // console.log(req.query.page);
     // paginate will send by default 10 records per page.
     // populate in pagination fixed by using it below, other ways do not work well with custom records from user.
     Stock.paginate(
       //  mongoDB Query for example:  SELECT * FROM profiles WHERE handle = "malikmazhar"
-      // { handle: 'malikmazhar' },
+      // { bay: 'aaaaaaaahF' },
       // below query is to find more than one, handle is matching all the given parameters.
       // { handle: { $in: ['malikmazhar', 'linuxgen', 'facebookuser'] } },
-
       // Query an Array but its case sensitive
-      // { skills: ['No SKILLS'] },
-
+      // { column: { $in: 'n0YErbaaaa' } },
+      // { row: { $in: 'b1/1' } },
+      // search by id
+      // { _id: { $in: '5bbb1e19f07bf42c5741c2ea' } },
+      // query / search by bay
+      // { bay: { $in: 'aaaaag' } },
       // we can leave the query empty like below if dont want any specific record.
       {},
       {
@@ -55,6 +60,64 @@ router.get(
   }
 );
 
+// @route   GET api/stock/all
+// @desc    Get all stocks
+// @access  Private
+router.get(
+  '/search',
+  // passport.authenticate('jwt', {
+  //   session: false
+  // }),
+  (req, res) => {
+    const errors = {};
+    //paginate custom options we have to add all sorting, limiting etc in these options only.
+    console.log(req.query);
+    const pageNumber = req.query.page;
+    const search = req.query.search;
+    const option = req.query.option;
+    const regex = new RegExp(['^', search, '$'].join(''), 'i');
+    //below will search for malik but if malikmazhar is available it will bring that as well.
+    const regexFree = new RegExp(['^', search].join(''), 'i');
+    // will try below query tomorrow again .. this can be a game changer..
+    // let query = Stock.find();
+    // if (req.query.option === 'bay') {
+    //   query.where({ bay: { $in: search } });
+    // }
+    // query
+    //   .exec()
+    Stock.paginate(
+      //   // search by id or any other specific field
+      //   // { _id: { $in: '5bbb1e19f07bf42c5741c2ea' } }, OR   // { column: { $in: search } },
+      //   // query / search by option by using brakets [variable] to replace mongoose Key
+      // { [option]: { $in: search } },
+
+      // Lets use Regular Expression to find UpperCase as well
+      { [option]: { $in: regexFree } },
+      //   // below will search in all given fields till it finds it. but it will look everywhere more load.
+      // { $or: [{ bay: search }, { column: search }, { _id: search }] },
+
+      //   // we can leave the query empty like below if dont want any specific record.
+      // {},
+      {
+        // limit will come from frontend header or params but if it doesnt, default || 10 i set it up.
+        limit: parseInt(20, 10) || 1,
+        // page: page || 1,
+        page: parseInt(pageNumber, 10) || 1,
+        // sort by latest Date
+        sort: { date: -1 }
+      }
+    )
+      .then(stocks => {
+        if (!stocks) {
+          // errors.noprofile = 'There are no profiles';
+          return res.status(404).json('There are no profiles');
+        }
+        // console.log(stocks);
+        return res.json(stocks);
+      })
+      .catch(err => res.status(404).json(err));
+  }
+);
 // @route   GET api/stock/id/:id
 // @desc    Get stock by id
 // @access  Private

@@ -40,7 +40,8 @@ class CreateProfile extends Component {
       image: {},
       errors: '',
       success: '',
-      disabled: false
+      disabled: false,
+      progress: false
     };
   }
   // componentDidMount = () => {
@@ -78,7 +79,8 @@ class CreateProfile extends Component {
   onDrop = files => {
     this.setState({
       files,
-      filename: files[0].name
+      filename: files[0].name,
+      disabled: true
     });
   };
   // Cropper
@@ -102,6 +104,8 @@ class CreateProfile extends Component {
     this.setState({ disabled: true });
     const file = this.state.image;
     const formData = new FormData();
+    // Spinner activated
+    this.setState({ progress: true });
     // this.setState({ files: e.target.files });
     formData.append('file', file);
     await axios
@@ -114,7 +118,8 @@ class CreateProfile extends Component {
         this.setState({
           imageurl: res.data.secure_url,
           imagepublicid: res.data.public_id,
-          disabled: false
+          disabled: false,
+          progress: false
         });
       });
     this.cancelCrop();
@@ -123,7 +128,8 @@ class CreateProfile extends Component {
   cancelCrop = () => {
     this.setState({
       files: [],
-      image: {}
+      image: {},
+      disabled: false
     });
   };
   // FileStack.com Button Function on success
@@ -154,7 +160,7 @@ class CreateProfile extends Component {
   };
 
   render() {
-    const { errors, success, displaySocialInputs } = this.state;
+    const { errors } = this.state;
     return (
       <div className="create-profile">
         <div className="container">
@@ -294,20 +300,22 @@ class CreateProfile extends Component {
                         style={{ maxHeight: '200px', maxWidth: '200px' }}
                         src={this.state.cropResult}
                       />
-                      <div className="btn group col col-md-12">
+                      <div className="col col-md-12 mt-1">
                         <button
-                          className="success"
+                          className="btn btn-outline-success float-left btn-sm"
                           type="button"
                           onClick={this.uploadImage}
                         >
-                          <i className="fas fa-check " />
+                          <i className="fas fa-check m-1" />
+                          confirm
                         </button>
                         <button
-                          className="success"
+                          className="btn btn-outline-danger float-right btn-sm"
                           type="button"
                           onClick={this.cancelCrop}
                         >
-                          <i className="far fa-times-circle" />
+                          <i className="far fa-times-circle m-1" />
+                          cancel
                         </button>
                       </div>
                     </div>
@@ -324,7 +332,7 @@ class CreateProfile extends Component {
                 /> */}
                 {/* DropZone to send images backend and 2 cloudinary */}
 
-                {this.state.disabled ? (
+                {this.state.progress ? (
                   <Spinner />
                 ) : (
                   <div>

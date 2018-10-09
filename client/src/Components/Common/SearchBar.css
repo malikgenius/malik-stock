@@ -1,0 +1,10 @@
+.input-group > .custom-file,
+.input-group > .custom-select,
+.input-group > .form-control {
+  position: relative;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  width: 0%;
+  width: none;
+  margin-bottom: 0;
+}
