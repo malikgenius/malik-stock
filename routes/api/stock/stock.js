@@ -26,17 +26,6 @@ router.get(
     // paginate will send by default 10 records per page.
     // populate in pagination fixed by using it below, other ways do not work well with custom records from user.
     Stock.paginate(
-      //  mongoDB Query for example:  SELECT * FROM profiles WHERE handle = "malikmazhar"
-      // { bay: 'aaaaaaaahF' },
-      // below query is to find more than one, handle is matching all the given parameters.
-      // { handle: { $in: ['malikmazhar', 'linuxgen', 'facebookuser'] } },
-      // Query an Array but its case sensitive
-      // { column: { $in: 'n0YErbaaaa' } },
-      // { row: { $in: 'b1/1' } },
-      // search by id
-      // { _id: { $in: '5bbb1e19f07bf42c5741c2ea' } },
-      // query / search by bay
-      // { bay: { $in: 'aaaaag' } },
       // we can leave the query empty like below if dont want any specific record.
       {},
       {
@@ -75,8 +64,9 @@ router.get(
     const pageNumber = req.query.page;
     const search = req.query.search;
     const option = req.query.option;
+    // below will search the exact word upper or lower but not more that that.
     const regex = new RegExp(['^', search, '$'].join(''), 'i');
-    //below will search for malik but if malikmazhar is available it will bring that as well.
+    //below will search for malik but if malikmazhar is available it will bring that as well. $ is not at the end will continue looking for similar words.
     const regexFree = new RegExp(['^', search].join(''), 'i');
     // will try below query tomorrow again .. this can be a game changer..
     // let query = Stock.find();

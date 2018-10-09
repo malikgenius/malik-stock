@@ -73,7 +73,7 @@ class Profile extends Component {
                   // value="https://localhost:3000/"
                   // here we will share
                   value={`
-                ${'        '}https://localhost:3000/stock/${profile._id}
+                ${'        '}https://malikgen.com/stock/${profile._id}
                 `}
                   // size={'128'}
                   // bgColor={'#0000FF'}

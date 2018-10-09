@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const mongoFusion = require('../config/Keys').mongoFusion;
+const mongoURI = require('../config/Keys').mongoURI;
 const Grid = require('gridfs-stream');
 const fs = require('fs');
 mongoose.Promise = global.Promise;
@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 // Simple mongoose.com to only open single connection to DB.
 mongoose
   .connect(
-    mongoFusion,
+    mongoURI,
     { useNewUrlParser: true }
   )
   .then(err => {

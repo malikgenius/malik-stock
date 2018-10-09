@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
-const mongoMernFront2BackMlab = require('../config/Keys')
-  .mongoMernFront2BackMlab;
+const mongoURI = require('../config/Keys').mongoURI;
 // Simple mongoose.com to only open single connection to DB.
 
 mongoose
   .connect(
-    mongoMernFront2BackMlab,
+    mongoURI,
     { useNewUrlParser: true }
   )
   .then(err => {
